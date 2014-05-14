@@ -15,7 +15,7 @@
  *                                                        *
  * hprose Writer for Lua                                  *
  *                                                        *
- * LastModified: Apr 25, 2014                             *
+ * LastModified: May 11, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -32,7 +32,6 @@ local getmetatable = getmetatable
 local floor        = math.floor
 local modf         = math.modf
 local huge         = math.huge
-local maxn         = table.maxn
 local format       = string.format
 local ostime       = os.time
 local osdate       = os.date

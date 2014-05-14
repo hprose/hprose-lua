@@ -15,7 +15,7 @@
  *                                                        *
  * hprose Reader for Lua                                  *
  *                                                        *
- * LastModified: Apr 26, 2014                             *
+ * LastModified: May 11, 2014                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -26,17 +26,8 @@ local ClassManager = require("hprose.class_manager")
 local OutputStream = require("hprose.output_stream")
 local tostring     = tostring
 local error        = error
-local type         = type
-local pairs        = pairs
 local setmetatable = setmetatable
-local getmetatable = getmetatable
-local floor        = math.floor
-local modf         = math.modf
 local huge         = math.huge
-local maxn         = table.maxn
-local format       = string.format
-local ostime       = os.time
-local osdate       = os.date
 
 local function unexpectedTag(tag, expectTags)
     if tag == nil then
