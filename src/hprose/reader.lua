@@ -14,7 +14,7 @@
  *                                                        *
  * hprose Reader for Lua                                  *
  *                                                        *
- * LastModified: May 11, 2014                             *
+ * LastModified: Mar 13, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -403,7 +403,7 @@ local function readClass(reader)
 end
 
 local function readRef(reader)
-    return reader.refer:read(readNumber(read.stream, Tags.Semicolon) + 1)
+    return reader.refer:read(readNumber(reader.stream, Tags.Semicolon) + 1)
 end
 
 local unserializeMethods = {
