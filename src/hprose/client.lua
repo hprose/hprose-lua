@@ -137,7 +137,7 @@ function Client:setFilter(filter)
 end
 
 function Client:addFilter(filter)
-    self.filters[#self.filters + 1] = filters
+    self.filters[#self.filters + 1] = filter
 end
 
 function Client:removeFilter(filter)
