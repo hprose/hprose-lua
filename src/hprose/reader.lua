@@ -14,7 +14,7 @@
  *                                                        *
  * hprose Reader for Lua                                  *
  *                                                        *
- * LastModified: Mar 13, 2015                             *
+ * LastModified: Apr 16, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -376,7 +376,7 @@ local function getClass(classname, fields)
             setmetatable(o, self)
             self.__index = self
             for i = 1, #fields do
-                o[fields[i]] = nil
+                o[fields[i]] = ''
             end
             return o
         end
