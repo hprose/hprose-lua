@@ -31,6 +31,7 @@ local hprose = {
     Formatter    = require("hprose.formatter"),
     Client       = require("hprose.client"),
     HttpClient   = require("hprose.http_client"),
+    TcpClient   = require("hprose.tcp_client"),
 }
 
 return hprose

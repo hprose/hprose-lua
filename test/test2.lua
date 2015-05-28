@@ -26,7 +26,7 @@ local person = {
 }
 
 local tick = os.clock();
-for i = 1, 1000000 do
+for i = 1, 10000 do
     hprose.Formatter.unserialize(hprose.Formatter.serialize(person))
 end
 

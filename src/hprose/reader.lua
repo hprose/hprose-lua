@@ -14,7 +14,7 @@
  *                                                        *
  * hprose Reader for Lua                                  *
  *                                                        *
- * LastModified: Apr 16, 2015                             *
+ * LastModified: May 28, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -23,6 +23,8 @@
 local Tags         = require("hprose.tags")
 local ClassManager = require("hprose.class_manager")
 local OutputStream = require("hprose.output_stream")
+local floor        = math.floor
+local tonumber     = tonumber
 local tostring     = tostring
 local error        = error
 local setmetatable = setmetatable
@@ -209,12 +211,12 @@ local function readNumber(stream, tag)
     if s == "" then
         return 0
     else
-        return tonumber(s, 10)
+        return tonumber(s)
     end
 end
 
 local function readInteger(reader)
-    return readNumber(reader.stream, Tags.Semicolon)
+    return floor(readNumber(reader.stream, Tags.Semicolon))
 end
 
 local function readLong(reader)
@@ -448,10 +450,9 @@ local unserializeMethods = {
 local Reader = RawReader:new()
 
 function Reader:new(stream, simple)
-    local o = {}
+    local o = RawReader:new(stream)
     setmetatable(o, self)
     self.__index = self
-    o.stream = stream
     o.refer = simple and FakeReaderRefer or RealReaderRefer:new(stream)
     o.classref = {}
     return o
