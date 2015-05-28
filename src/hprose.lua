@@ -14,7 +14,7 @@
  *                                                        *
  * hprose for Lua                                         *
  *                                                        *
- * LastModified: May 14, 2014                             *
+ * LastModified: May 28, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -31,7 +31,7 @@ local hprose = {
     Formatter    = require("hprose.formatter"),
     Client       = require("hprose.client"),
     HttpClient   = require("hprose.http_client"),
-    TcpClient   = require("hprose.tcp_client"),
+    TcpClient    = require("hprose.tcp_client"),
 }
 
 return hprose
