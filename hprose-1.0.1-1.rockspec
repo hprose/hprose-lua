@@ -1,7 +1,8 @@
 package = "hprose"
-version = "1.0.1-2"
+version = "1.0.1-1"
 source = {
-    url = "https://github.com/hprose/hprose-lua/archive/v1.0.1.tar.gz",
+    url = "git://github.com/hprose/hprose-lua",
+    tag = "v1.0.1"
 }
 description = {
     summary = "Hprose for Lua",
