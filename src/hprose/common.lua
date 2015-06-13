@@ -14,11 +14,37 @@
  *                                                        *
  * hprose common lib for Lua                              *
  *                                                        *
- * LastModified: Apr 19, 2014                             *
+ * LastModified: Jun 14, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 --]]
+
+
+function string:trim()
+    return self:match('^()%s*$') and '' or self:match('^%s*(.*%S)')
+end
+
+function string:split(delim, n)
+    if self:find(delim) == nil or n == 1 then
+        return { self }
+    end
+    if n == nil or n < 1 then
+        n = 0
+    end
+    local result = {}
+    local pattern = "(.-)" .. delim .. "()"
+    local i = 1
+    local p = 1
+    for part, pos in self:gfind(pattern) do
+        result[i] = part
+        i = i + 1
+        p = pos
+        if i == n then break end
+    end
+    result[i] = self:sub(p)
+    return result
+end
 
 function string:ulen()
     local length = self:len()

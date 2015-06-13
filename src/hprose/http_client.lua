@@ -14,7 +14,7 @@
  *                                                        *
  * hprose HTTP Client for Lua                             *
  *                                                        *
- * LastModified: May 28, 2015                             *
+ * LastModified: Jun 14, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -22,9 +22,79 @@
 
 local Client = require("hprose.client")
 local http   = require("socket.http")
+local url    = require("socket.url")
 local ltn12  = require("ltn12")
+local date   = require("date")
 local concat = table.concat
 local error  = error
+
+local cookieManager = {}
+
+function setCookie(headers, host)
+    for name, value in pairs(headers) do
+        name = name:lower()
+        if name == 'set-cookie' or name == 'set-cookie2' then
+            local cookies = value:trim():split(';')
+            local cookie = {}
+            value = cookies[1]:trim():split('=', 2)
+            cookie.name = value[1]
+            cookie.value = value[2]
+            for i= 2, #cookies do
+                value = cookies[i]:trim():split('=', 2)
+                cookie[value[1]:upper()] = value[2]
+            end
+            --[[ Tomcat can return SetCookie2 with path wrapped in " --]]
+            if cookie.PATH then
+                if cookie.PATH:sub(1, 1) == '"' then
+                   cookie.PATH = cookie.PATH:sub(2)
+                end
+                if cookie.PATH:sub(-1, -1) == '"' then
+                   cookie.PATH = cookie.PATH:sub(1, -2)
+                end
+            else
+                cookie.PATH = '/'
+            end
+            if cookie.EXPIRES then
+                cookie.EXPIRES = date(cookie.EXPIRES)
+            end
+            if cookie.DOMAIN then
+                cookie.DOMAIN = cookie.DOMAIN:lower()
+            else
+                cookie.DOMAIN = host
+            end
+            cookie.SECURE = (cookie.SECURE ~= nil)
+            if cookieManager[cookie.DOMAIN] == nil then
+                cookieManager[cookie.DOMAIN] = {}
+            end
+            cookieManager[cooke.DOMAIN][cookie.name] = cookie
+        end
+    end
+end
+
+function getCookie(host, path, secure)
+    local cookies = {}
+    for domain, value in pairs(cookieManager) do
+        if host:find(domain) ~= nil then
+            local names = {}
+            for name, cookie in pairs(value) do
+                if cookie.EXPIRES and date() > cookie.EXPIRES then
+                    names[#names] = name
+                elseif path:find(cookie.PATH) == 1 then
+                    if ((secure and cookie.SECURE) or ~cookie.SECURE) and cookie.value ~= nil then
+                        cookies[#cookies] = cookie.name .. '=' .. cookie.value
+                    end
+                end
+            end
+            for _, name in ipairs(names) do
+                cookieManager[domain][name] = nil
+            end
+        end
+    end
+    if #cookies > 0 then
+        return concat(cookies, '; ')
+    end
+    return ''
+end
 
 local HttpClient = Client:new()
 
@@ -44,8 +114,13 @@ function HttpClient:sendAndReceive(data)
     http.TIMEOUT = self.timeout
     local resp_body = {}
     local req_header = {}
+    local uri = url.parse(self.uri)
+    local cookie = getCookie(uri.host, uri.path, uri.scheme == 'https')
     for name, value in pairs(self.header) do
-      req_header[name] = value
+        req_header[name] = value
+    end
+    if cookie ~= '' then
+        req_header['cookie'] = cookie
     end
     req_header['content-length'] = data:len()
     req_header['content-type'] = 'text/plain'
@@ -64,6 +139,7 @@ function HttpClient:sendAndReceive(data)
         proxy = self.proxy
     }
     if resp_code == 200 then
+        setCookie(resp_header, uri.host)
         return concat(resp_body)
     else
         error(resp_code .. ': ' .. resp_status)
