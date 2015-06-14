@@ -1,10 +1,39 @@
 require("hprose.common")
+local date = require('date')
 local str = "你好"
 print(str:ulen())
 print(str:isutf8())
 str = "Hello 中国"
 print(str:ulen())
 print(str:isutf8())
+
+function var_dump(data, max_level, prefix)
+    if type(prefix) ~= "string" then
+        prefix = ""
+    end
+    if type(data) ~= "table" then
+        print(prefix .. tostring(data))
+    else
+        print(data)
+        if max_level ~= 0 then
+            local prefix_next = prefix .. "    "
+            print(prefix .. "{")
+            for k,v in pairs(data) do
+                io.stdout:write(prefix_next .. k .. " = ")
+                if type(v) ~= "table" or (type(max_level) == "number" and max_level <= 1) then
+                    print(v)
+                else
+                    if max_level == nil then
+                        var_dump(v, nil, prefix_next)
+                    else
+                        var_dump(v, max_level - 1, prefix_next)
+                    end
+                end
+            end
+            print(prefix .. "}")
+        end
+    end
+end
 
 local InputStream = require("hprose.input_stream")
 local istream = InputStream:new("你好i321;")
@@ -55,6 +84,8 @@ writer:serialize(string.char(128, 129, 130, 131, 132, 133))
 writer:serialize({1,2,3,4,5,6,7,8,9,10,11,12})
 writer:serialize({10, 20, nil, 40})
 writer:serialize({true, false, nil, "Hello"})
+writer:serialize(date(true))
+writer:serialize(date(false))
 writer:serialize({year = 1997, month = 18, day = 1})
 writer:serialize({year = 1970, month = 1, day = 1, hour = 12, min = 12, sec = 56})
 writer:serialize({year = 1969, month = 13, day = 1, hour = 12, min = 12, sec = 56, utc = true})
@@ -97,38 +128,42 @@ local Reader = require("hprose.reader")
 
 local reader = Reader:new(InputStream:new(tostring(ostream)))
 
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
-print(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
+var_dump(reader:unserialize())
 
 local hprose = require("hprose")
 local client = hprose.HttpClient:new("http://hprose.com/example/index.php")
 local stub = client:useService()
-print(stub.hello('world'))
-print(stub.sum(1, 2, 3, 4))
-print(hprose.Formatter.serialize(stub.swapKeyAndValue({hello = "world"})))
-print(hprose.Formatter.serialize(stub.getUserList()))
+var_dump(stub.hello('world'))
+var_dump(stub.sum(1, 2, 3, 4))
+var_dump(stub.inc())
+var_dump(stub.inc())
+var_dump(stub.inc())
+var_dump(stub.inc())
+var_dump(stub.swapKeyAndValue({hello = "world"}))
+var_dump(stub.getUserList())

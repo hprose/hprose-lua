@@ -66,7 +66,7 @@ function setCookie(headers, host)
             if cookieManager[cookie.DOMAIN] == nil then
                 cookieManager[cookie.DOMAIN] = {}
             end
-            cookieManager[cooke.DOMAIN][cookie.name] = cookie
+            cookieManager[cookie.DOMAIN][cookie.name] = cookie
         end
     end
 end
@@ -78,10 +78,10 @@ function getCookie(host, path, secure)
             local names = {}
             for name, cookie in pairs(value) do
                 if cookie.EXPIRES and date() > cookie.EXPIRES then
-                    names[#names] = name
+                    names[#names + 1] = name
                 elseif path:find(cookie.PATH) == 1 then
-                    if ((secure and cookie.SECURE) or ~cookie.SECURE) and cookie.value ~= nil then
-                        cookies[#cookies] = cookie.name .. '=' .. cookie.value
+                    if ((secure and cookie.SECURE) or not cookie.SECURE) and cookie.value ~= nil then
+                        cookies[#cookies + 1] = cookie.name .. '=' .. cookie.value
                     end
                 end
             end

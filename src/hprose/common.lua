@@ -36,7 +36,7 @@ function string:split(delim, n)
     local pattern = "(.-)" .. delim .. "()"
     local i = 1
     local p = 1
-    for part, pos in self:gfind(pattern) do
+    for part, pos in self:gmatch(pattern) do
         result[i] = part
         i = i + 1
         p = pos

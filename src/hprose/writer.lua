@@ -14,7 +14,7 @@
  *                                                        *
  * hprose Writer for Lua                                  *
  *                                                        *
- * LastModified: May 11, 2014                             *
+ * LastModified: Jun 14, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -23,6 +23,7 @@
 require("hprose.common")
 local Tags         = require("hprose.tags")
 local ClassManager = require("hprose.class_manager")
+local date         = require("date")
 local error        = error
 local type         = type
 local pairs        = pairs
@@ -130,6 +131,11 @@ local function isobject(val)
     return ClassManager.getClassAlias(getmetatable(val)) ~= nil
 end
 
+local dobj = getmetatable(date())
+local function isdate(val)
+    return getmetatable(val) == dobj
+end
+
 local function isdatetime(val)
     return type(val.year) == "number" and
         type(val.month) == "number" and
@@ -140,13 +146,13 @@ local function isdatetime(val)
         (type(val.utc) == "boolean" or type(val.utc) == "nil")
 end
 
-local function isdate(val)
+local function isosdate(val)
     return (type(val.hour) == "number" and val.hour == 0 or type(val.hour) == "nil") and
-        (type(val.min) == "number" and val.hour == 0 or type(val.min) == "nil") and
-        (type(val.sec) == "number" and val.hour == 0 or type(val.sec) == "nil")
+        (type(val.min) == "number" and val.min == 0 or type(val.min) == "nil") and
+        (type(val.sec) == "number" and val.sec == 0 or type(val.sec) == "nil")
 end
 
-local function istime(val)
+local function isostime(val)
     return val.year == 1970 and val.month == 1 and val.day == 1
 end
 
@@ -183,6 +189,8 @@ end
 local function writeTable(writer, val)
     if isobject(val) then
         writer:writeObjectWithRef(val)
+    elseif isdate(val) then
+        writer:writeDateWithRef(val)
     elseif isdatetime(val) then
         writer:writeDateTimeWithRef(val)
     elseif isarray(val) then
@@ -249,15 +257,35 @@ function Writer:writeEmpty()
     self.stream:write(Tags.Empty)
 end
 
+function Writer:writeDate(val)
+    self.refer:set(val)
+    h,i,s,u = val:gettime()
+    if h == 0 and i == 0 and s == 0 and u == 0 then
+        self.stream:write(Tags.Date, val:fmt("%Y%m%d", time), Tags.Semicolon)
+    else
+        y, m, d = val:getdate()
+        if y == 1970 and m == 1 and d == 1 then
+            self.stream:write(Tags.Time, val:fmt("%H%M%\f", time), Tags.Semicolon)
+        else
+            self.stream:write(Tags.Date, val:fmt("%Y%m%d", time),
+                              Tags.Time, val:fmt("%H%M%\f", time), Tags.Semicolon)
+        end
+    end
+end
+
+function Writer:writeDateWithRef(val)
+    if not self.refer:write(val) then self:writeDate(val) end
+end
+
 function Writer:writeDateTime(val)
     self.refer:set(val)
     local timezone = val.utc and Tags.UTC or Tags.Semicolon
     local time = ostime(val)
-    if isdate(val) then
+    if isosdate(val) then
         self.stream:write(Tags.Date, osdate("%Y%m%d", time), timezone)
     else
         val = osdate("*t", time)
-        if istime(val) then
+        if isostime(val) then
             self.stream:write(Tags.Time, osdate("%H%M%S", time), timezone)
         else
             self.stream:write(Tags.Date, osdate("%Y%m%d", time),
