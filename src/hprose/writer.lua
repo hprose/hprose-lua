@@ -14,7 +14,7 @@
  *                                                        *
  * hprose Writer for Lua                                  *
  *                                                        *
- * LastModified: Jun 14, 2015                             *
+ * LastModified: Jun 17, 2015                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
@@ -259,16 +259,17 @@ end
 
 function Writer:writeDate(val)
     self.refer:set(val)
-    h,i,s,u = val:gettime()
+    local timezone = val.utc and Tags.UTC or Tags.Semicolon
+    local h, i, s, u = val:gettime()
     if h == 0 and i == 0 and s == 0 and u == 0 then
-        self.stream:write(Tags.Date, val:fmt("%Y%m%d", time), Tags.Semicolon)
+        self.stream:write(Tags.Date, val:fmt("%Y%m%d", time), timezone)
     else
-        y, m, d = val:getdate()
+        local y, m, d = val:getdate()
         if y == 1970 and m == 1 and d == 1 then
-            self.stream:write(Tags.Time, val:fmt("%H%M%\f", time), Tags.Semicolon)
+            self.stream:write(Tags.Time, val:fmt("%H%M%\f", time), timezone)
         else
             self.stream:write(Tags.Date, val:fmt("%Y%m%d", time),
-                              Tags.Time, val:fmt("%H%M%\f", time), Tags.Semicolon)
+                              Tags.Time, val:fmt("%H%M%\f", time), timezone)
         end
     end
 end
