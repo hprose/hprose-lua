@@ -144,12 +144,13 @@ function HttpClient:sendAndReceive(data)
     for name, value in pairs(self.options) do
         req[name] = value
     end
+    local resp, resp_code, resp_header, resp_status
     if uri.scheme == 'https' then
         https.TIMEOUT = self.timeout
-        local resp, resp_code, resp_header, resp_status = https.request(req)    
+        resp, resp_code, resp_header, resp_status = https.request(req)    
     else
         http.TIMEOUT = self.timeout
-        local resp, resp_code, resp_header, resp_status = http.request(req)    
+        resp, resp_code, resp_header, resp_status = http.request(req)    
     end
     if resp_code == 200 then
         setCookie(resp_header, uri.host)
