@@ -14,15 +14,17 @@
  *                                                        *
  * hprose HTTP Client for Lua                             *
  *                                                        *
- * LastModified: Jun 14, 2015                             *
+ * LastModified: Sep 22, 2016                             *
  * Author: Ma Bingyao <andot@hprose.com>                  *
  *                                                        *
 \**********************************************************/
 --]]
 
+require("socket")
 local Client = require("hprose.client")
 local http   = require("socket.http")
 local url    = require("socket.url")
+local https  = require("ssl.https")
 local ltn12  = require("ltn12")
 local date   = require("date")
 local concat = table.concat
@@ -107,6 +109,7 @@ function HttpClient:new(uri)
     o.proxy = nil
     o.timeout = 30
     o.header = {}
+    o.options = {}
     return o
 end
 
@@ -130,7 +133,7 @@ function HttpClient:sendAndReceive(data)
     else
         req_header['connection'] = 'close'
     end
-    local resp, resp_code, resp_header, resp_status = http.request{
+    local req = {
         url = self.uri,
         sink = ltn12.sink.table(resp_body),
         method = 'POST',
@@ -138,9 +141,21 @@ function HttpClient:sendAndReceive(data)
         source = ltn12.source.string(data),
         proxy = self.proxy
     }
+    for name, value in pairs(self.options) do
+        req[name] = value
+    end
+    if uri.scheme == 'https' then
+        https.TIMEOUT = self.timeout
+        local resp, resp_code, resp_header, resp_status = https.request(req)    
+    else
+        http.TIMEOUT = self.timeout
+        local resp, resp_code, resp_header, resp_status = http.request(req)    
+    end
     if resp_code == 200 then
         setCookie(resp_header, uri.host)
         return concat(resp_body)
+    elseif resp == nil then
+        error(resp_code)
     else
         error(resp_code .. ': ' .. resp_status)
     end

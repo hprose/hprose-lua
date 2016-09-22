@@ -1,8 +1,8 @@
 package = "hprose"
-version = "1.3.0-1"
+version = "1.3.1-1"
 source = {
    url = "git://github.com/hprose/hprose-lua",
-   tag = "v1.3.0"
+   tag = "v1.3.1"
 }
 description = {
    summary = "Hprose for Lua",
@@ -39,7 +39,7 @@ description = {
    license = "MIT"
 }
 dependencies = {
-   "lua >= 5.1", "luasocket", "date"
+   "lua >= 5.1", "luasocket", "luasec", "date"
 }
 build = {
    type = "builtin",
