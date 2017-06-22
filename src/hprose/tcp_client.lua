@@ -25,7 +25,6 @@ local url    = require("socket.url")
 local socket = require("socket")
 local char  = string.char
 local floor  = math.floor
-local concat = table.concat
 local assert = assert
 
 local TcpClient = Client:new()
@@ -50,11 +49,11 @@ function TcpClient:close()
   end
 end
 
-function TcpClient:useService(uri)
+function TcpClient:useService(uri, namespace)
     if uri ~= nil then
         self:close()
     end
-    return Client.useService(self, uri)
+    return Client.useService(self, uri, namespace)
 end
 
 function TcpClient:sendAndReceive(data)

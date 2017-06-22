@@ -32,16 +32,20 @@ local setmetatable = setmetatable
 local remove       = table.remove
 
 local dynamicProxy = {
-    client = nil,
-    new = function (self, client)
+    new = function (self, client, namespace)
         local o = {}
         setmetatable(o, self)
         o.client = client
+        if namespace ~= nil then
+            o.namespace = namespace .. "_"
+        else
+            o.namespace = ""
+        end
         return o
     end,
     __index = function (self, name)
         return function (...)
-            return self.client:invoke(name, {...}, false, ResultMode.Normal, false)
+            return self.client:invoke(self.namespace .. name, {...}, false, ResultMode.Normal, false)
         end
     end,
 }
@@ -58,9 +62,9 @@ function Client:new(uri)
     return o
 end
 
-function Client:useService(uri)
+function Client:useService(uri, namespace)
     if uri ~= nil then self.uri = uri end
-    return dynamicProxy:new(self)
+    return dynamicProxy:new(self, namespace)
 end
 
 function Client:invoke(name, args, byRef, resultMode, simple)
